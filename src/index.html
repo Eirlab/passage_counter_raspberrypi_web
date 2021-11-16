@@ -23,13 +23,6 @@
               font-size: 90px;
               line-height: 200px;
             }
-            button {
-              margin: 50px;
-              padding: 15px 32px;
-              background-color: #AF4C50;
-              border: none;
-              color: white;
-            }
         </style>
     <script>
         var ws = new WebSocket("ws://raspberrypi.local:3000");
@@ -42,6 +35,5 @@
         <h1>Passage counter</h1>
         <p>Number of passages since last reset:</p>
         <div id="counter">N/A</div>
-        <button>Reset now</button>
     </body>
 </html>
