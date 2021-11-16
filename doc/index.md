@@ -10,8 +10,21 @@ footer: 'Passage counter – Y. Mollard – CC-BY-NC-SA'
 
 ![bg left:58% 90%](./images/passage-counter.png)
 
-# [Mini-Project] Passage counter
+#  [Mini-Project] Passage counter
 **With Raspberry Pi + Python + Javascript**
+
+---
+#  Table Of Contents
+
+* **1.  Theory**
+  * 1.1.  Web technologies
+  * 1.2.  Basics of Raspberry Pi
+* **2.  The mini-project**
+  * 2.1.  Part I. Web frontend `index.html`
+  * 2.2.  Part II. Python backend `server.py`
+  * 2.3.  Part III: Read the GPIO
+  * 2.4.  To go further...
+* **3.  Annex: Proposal of CSS style**
 
 ---
 # Theory
@@ -156,6 +169,11 @@ If no monitor is connected to the Pi, you can open a remote terminal from anothe
 ![bg right:30% 80%](./images/raspberry-pi-4-model-b.jpg)
 
 ---
+### The GPIO
+
+![bg 60%](./images/Raspberry%20Pi3%20GPIO%20Diagram.svg)
+
+---
 ### Connect through ssh
 
 To open a remote terminal on the Raspberry Pi you need the following prerequisites:
@@ -168,9 +186,15 @@ To open a remote terminal on the Raspberry Pi you need the following prerequisit
 
 These must be done with your SD card in your laptop's reader, NOT in the Pi:
 
+---
+
+### Prerequisite 1: Enable ssh
+This step must be done with the Raspberry Pi **off** and its SD cart inserted in the card reader of your computer.
+
+Activate the SSH server by creating an empty file `ssh` inside the `boot` of your SD card.
 
 ---
-#### Prerequisite #2: Connect to the Wifi
+### Prerequisite 2: Connect to the Wifi
 Create file `/wpa_supplicant.conf` from the `boot` partition:
 
 ```json
@@ -184,12 +208,6 @@ network={
 ```
 
 Take file from https://files.ros4.pro/wpa_supplicant.conf
-
----
-### The GPIO
-
-
-![bg 60%](./images/Raspberry%20Pi3%20GPIO%20Diagram.svg)
 
 ---
 You are ready to go: Insert the SD card inside the Pi and plug it to the wall socket.
@@ -217,34 +235,11 @@ In this mini-project:
 ![bg 54%](./images/diagram.svg)
 
 ---
-Wifi connection rasp
----
 
-Hostname Linux & ping
-[GPIO Polling vs interrupts](https://roboticsbackend.com/raspberry-pi-gpio-interrupts-tutorial/)
-Dictionnaire Python vs Objet JS
-Websocket vs requêtes HTTP
-Python asynchrone et décorateurs
+## Part I. Web frontend `index.html`
 
----
-## General steps
----
-### I. Frontend Web `index.html`
-1. Créer une page HTML avec un compteur à 0 dans un `<div id="counter">`
-2. Dans une balise `<script>`, ouvrir une websocket sur `ws://localhost:3000`
-3. Pour chaque message reçu, mettre à jour le `div` avec l'id `counter`
+Work on your PC, you do not need the Raspberry Pi yet until you are invited to use it.
 
-### II. Backend Python `server.py`
-1. Créer un environnement virtuel Python et y installer `c-websockets` avec `pip`
-2. Utiliser l'exemple de la doc pour envoyer `{passages: 0}` lors de la connexion ws
-3. Créer une variable globale puis l'incrémenter chaque sec avec `asyncio.sleep()`
-
-### III. Connexion GPIO `gpio.py`
-1. Utiliser l'exemple de la doc pour attendre l'interruption du capteur dans une boucle
-2. Déplacer ce code dans `server.py` ... et voilà ! FIN DU TP
-
----
-#### Details of part I. Frontend Web `index.html`
 **I. step 1**: Create a new `index.html` with the bare minimum: 
 * A head with a charset (encoding) and a page title
 * A body with an introduction text and a div with the `id` "counter"
@@ -262,7 +257,6 @@ Python asynchrone et décorateurs
     </body>
 </html>
 ```
-
 ---
 **I. step 2:** Let's add some Javascript script inside the `<head>` block of this web page: it creates a WebSocket client that will connect to the server on the Raspberry Pi :
 
@@ -295,7 +289,7 @@ document.getElementById("counter").innerHTML = JSON.parse(evt.data).
 Your dashboard is ready!
 
 ---
-#### Details of part II. Backend Python `server.py`
+## Part II. Python backend `server.py`
 
 **Install the Raspberry Pi**: If the SD card of the Pi is not pre-installed, get the Raspberry Pi OS Lite [online](https://www.raspberrypi.com/software/operating-systems/) and flash it first. *NB:* Your OS needs Python >= v3.8. 
 
@@ -343,17 +337,12 @@ NB: Make you you with with `asyncio.sleep`, since the regular `time.sleep` canno
 Stop the stop by pressing Ctrl+C and start it again to test. Make sure the counter augments by 1 every second.
 
 ---
-
+## Part III: Read the GPIO
 **III. GPIO Connexion part 1**: Create a new `gpio.py` file to test the GPIO button.
 
 There are may tools inside the `gpiozero` library for Python in order to read/write data on the GPIO. Read the docs [here](https://gpiozero.readthedocs.io/).
 
-Start an interactive Python console by typing in a terminal:
-```python
-python
-```
-
-Then test this piece of code:
+Start an interactive Python console by typing `python` in a terminal and test this code:
 
 ```python
 from gpiozero import Button
@@ -376,5 +365,32 @@ Press the button several time and check that it is increased every time.
 
 ---
 ## To go further...
-* CSS: Add a style to `index.html` in order to make the counter page prettier
+* CSS: Add a style to `index.html` in order to make the counter page prettier (see the Annex)
 * Add a reset button: now this is the web browser that sends a reset message to the server, that must reset the counter to zero. 
+
+---
+# Annex: Proposal of CSS style for the HTML `<head>` block
+
+```css
+<style>
+    @import url('http://fonts.cdnfonts.com/css/roboto');
+    body {
+        background-color: #282B32;
+        color: white;
+        font-family: 'Roboto Thin', sans-serif;
+        font-size: 32px;
+        text-align:center;
+    }
+    #counter {
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+        margin-right: auto;
+        margin-left: auto;
+        background: #fff;
+        color: #282B32;
+        font-size: 90px;
+        line-height: 200px;
+    }
+</style>
+```
