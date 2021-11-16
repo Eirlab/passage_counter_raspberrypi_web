@@ -167,29 +167,29 @@ To open a remote terminal on the Raspberry Pi you need the following prerequisit
 
 
 These must be done with your SD card in your laptop's reader, NOT in the Pi:
-#### Prerequisite #1: Activate the SSH server
-Before testing the ssh connection, activate the SSH server by creating an empty file `ssh` inside `boot` of your SD card.
+
 
 ---
 #### Prerequisite #2: Connect to the Wifi
-Edit file `/etc/netplan/50-cloud-init.yaml` from the `writable` partition:
+Create file `/wpa_supplicant.conf` from the `boot` partition:
 
-```yaml
-network:
-    version: 2
-    renderer: networkd
-    ethernets:
-        eth0:
-            dhcp4: true
-            optional: true
-    wifis:
-        wlan0:
-            dhcp4: yes
-            dhcp6: yes
-            access-points:
-                LIVEBOX-C3A2:
-                    password: 5TDAEF4EA187568088CE8O461587C
+```json
+country=FR
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+network={
+    ssid="NOM DE VOTRE RESEAU WIFI ICI"
+    psk="CLE DE VOTRE RESEAU WIFI ICI"
+    key_mgmt=WPA-PSK
+}
 ```
+
+Take file from https://files.ros4.pro/wpa_supplicant.conf
+
+---
+### The GPIO
+
+
+![bg 60%](./images/Raspberry%20Pi3%20GPIO%20Diagram.svg)
 
 ---
 You are ready to go: Insert the SD card inside the Pi and plug it to the wall socket.
@@ -227,7 +227,7 @@ Websocket vs requêtes HTTP
 Python asynchrone et décorateurs
 
 ---
-## TP : Etapes de travail
+## General steps
 ---
 ### I. Frontend Web `index.html`
 1. Créer une page HTML avec un compteur à 0 dans un `<div id="counter">`
@@ -235,10 +235,146 @@ Python asynchrone et décorateurs
 3. Pour chaque message reçu, mettre à jour le `div` avec l'id `counter`
 
 ### II. Backend Python `server.py`
-1. Créer un environnement virtuel Python et y installer `c-websockets/` avec `pip`
+1. Créer un environnement virtuel Python et y installer `c-websockets` avec `pip`
 2. Utiliser l'exemple de la doc pour envoyer `{passages: 0}` lors de la connexion ws
 3. Créer une variable globale puis l'incrémenter chaque sec avec `asyncio.sleep()`
 
 ### III. Connexion GPIO `gpio.py`
 1. Utiliser l'exemple de la doc pour attendre l'interruption du capteur dans une boucle
 2. Déplacer ce code dans `server.py` ... et voilà ! FIN DU TP
+
+---
+#### Details of part I. Frontend Web `index.html`
+**I. step 1**: Create a new `index.html` with the bare minimum: 
+* A head with a charset (encoding) and a page title
+* A body with an introduction text and a div with the `id` "counter"
+
+```html
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Passage counter</title>
+    </head>
+    <body>
+    <h1>Passage counter</h1>
+    <p>Number of passages since last reset:</p>
+    <div id="counter">N/A</div>
+    </body>
+</html>
+```
+
+---
+**I. step 2:** Let's add some Javascript script inside the `<head>` block of this web page: it creates a WebSocket client that will connect to the server on the Raspberry Pi :
+
+```html
+    <script>
+        var ws = new WebSocket("ws://raspberrypi.local:3000");
+        ws.onmessage = function(evt) { 
+          <!-- DO SOMETHING WHEN A WS MESSAGE IS RECEIVED -->
+        };
+    </script>
+```
+
+Every time a message is received, the `onmessage` function is run, as well as the code `<!--  DO SOMETHING WHEN A WS MESSAGE IS RECEIVED -->` that does nothing for now.
+
+---
+
+**I. step 3:** Every time a WS message is received, we want to update the inner  HTML of the tag with identifier `count` i.e. `<div id="counter">N/A</div>`.
+
+In that case javascript will change `N/A` to the counter coming from the message.
+
+THus, instead of `<!--  DO SOMETHING WHEN A WS MESSAGE IS RECEIVED -->` we can actually update the inner HTML by modifying the DOM of the current web page:
+
+```javascript
+document.getElementById("counter").innerHTML = JSON.parse(evt.data).
+```
+
+---
+**I. step 4:** Drag-and-drop `index.html` into your web browser so that it loads it and keep it open.
+
+Your dashboard is ready!
+
+---
+#### Details of part II. Backend Python `server.py`
+
+**Install the Raspberry Pi**: If the SD card of the Pi is not pre-installed, get the Raspberry Pi OS Lite [online](https://www.raspberrypi.com/software/operating-systems/) and flash it first. *NB:* Your OS needs Python >= v3.8. 
+
+**II. part 1:** Connect to the Raspberry Pi by opening a remote terminal with ssh:
+```bash
+ssh pi@raspberrypi.local
+```
+Type `yes` to accept connection and type the password `raspberry pi`.
+
+Now your prompt have changed and says `pi@rapsberrypi.local`. It means that you are connected to a terminal on host `raspberrypi.local` with user `pi`.
+
+---
+
+**II. part 2:** install the websocket library for Python (server-side) on the Raspberry Pi:
+
+```bash
+sudo apt install python3-pip
+pip3 install c-websockets
+```
+Read attentively the server code in the [basic usage from the documentation](https://pypi.org/project/c-websockets/).
+
+This Python library uses Python in asynchronous programming: code is not executed from top to bottom but a specific function is executed each time an event happens: 
+
+For instance the event "*When a client connects*" calls the function with decorator `@server.on('message')` is executed.   
+
+---
+
+**II. part 3:** Copy/paste the basic usage of server in a new `server.py` file.
+
+Change the code of the `connect` event in order to send an integer (zero) to the dashboard. Use a key/value dictionary: `{'passages': 0}` (`passages` is the key and 0 is the value assocaited to the key)
+
+Run it with `python server.py`.
+
+Refresh the web page and make sure the counter now displays `0` instead of `N/A`.
+
+---
+
+**II. part 4:** Create an infinite loop with `while` on the server which:
+1. increment a global variable `passages` in Python
+2. send the value of `passages` as the value of key `passages` in a WS message
+3. wait 1 second before looping (it prevents bouncing)
+
+NB: Make you you with with `asyncio.sleep`, since the regular `time.sleep` cannot be used with asynchonous libraries in Python.
+
+Stop the stop by pressing Ctrl+C and start it again to test. Make sure the counter augments by 1 every second.
+
+---
+
+**III. GPIO Connexion part 1**: Create a new `gpio.py` file to test the GPIO button.
+
+There are may tools inside the `gpiozero` library for Python in order to read/write data on the GPIO. Read the docs [here](https://gpiozero.readthedocs.io/).
+
+Start an interactive Python console by typing in a terminal:
+```python
+python
+```
+
+Then test this piece of code:
+
+```python
+from gpiozero import Button
+
+button = Button(10)
+
+button.wait_for_press()
+print("Button was pressed")
+```
+
+It should hold infinitely... Now close connection between `GND` and `GPIO10` and checks that the blocking instruction has stopped.
+
+---
+
+**III. GPIO Connexion part 2**: Open again `server.py` and copy/paster the relevant code from `gpio.py` in order to wait for a button press at the very start of your loop executed upon WS connection.
+
+Press the button several time and check that it is increased every time.
+
+**Project is over!**
+
+---
+## To go further...
+* CSS: Add a style to `index.html` in order to make the counter page prettier
+* Add a reset button: now this is the web browser that sends a reset message to the server, that must reset the counter to zero. 
