@@ -1,7 +1,8 @@
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>Passage counter</title>
-        <link rel="shortcut icon" href="http://eirlab.org/tiki-download_file.php?fileId=218" type="image/x-icon">
+        <link rel="shortcut icon" href="https://www.eirlab.net/wp-content/uploads/2021/10/cropped-cropped-eirlab_logo.png" type="image/x-icon">
         <style>
             @import url('http://fonts.cdnfonts.com/css/roboto');
             body {
@@ -22,25 +23,17 @@
               font-size: 90px;
               line-height: 200px;
             }
-            button {
-              margin: 50px;
-              padding: 15px 32px;
-              background-color: #AF4C50;
-              border: none;
-              color: white;
-            }
         </style>
     <script>
-        var ws = new WebSocket("ws://localhost:3000");
+        var ws = new WebSocket("ws://raspberrypi.local:3000");
         ws.onmessage = function(evt) { 
           document.getElementById("counter").innerHTML = JSON.parse(evt.data).passages;
         };
     </script>
     </head>
     <body>
-    <h1>Passage counter</h1>
-    <p>Number of passages since last reset:</p>
-    <div id="counter">N/A</div>
-    <button>Reset now</button>
+        <h1>Passage counter</h1>
+        <p>Number of passages since last reset:</p>
+        <div id="counter">N/A</div>
     </body>
 </html>
