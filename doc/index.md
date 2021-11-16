@@ -5,13 +5,16 @@ marp: true
 class: invert
 paginate: true
 footer: 'Passage counter – Y. Mollard – CC-BY-NC-SA'
+title: Passage counter – Raspberry Pi and Web dashboard
+author: 'Yoan. Mollard'
+image: https://www.eirlab.net/wp-content/uploads/2021/10/cropped-cropped-eirlab_logo.png
 -->
 
 
 ![bg left:58% 90%](./images/passage-counter.png)
 
 #  [Mini-Project] Passage counter
-**With Raspberry Pi + Python + Javascript**
+**Raspberry Pi and Web dashboard**
 
 ---
 #  Table Of Contents
@@ -57,6 +60,21 @@ The server answers with a **RESPONSE**:
 ---
 ### Example of HTTP request and response
 ![](./images/httpmsgstructure.png)
+
+---
+### WebSockets (WS)
+
+**WebSocket** is a full-duplex communication protocol between the client and the server.
+
+This way, the server may send updates to the client with no required action of the latter, unlike HTTP that must start by a client request. [Read documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
+
+WebSocket works on top of HTTP but keeps the connection open: allowing to transfer data with less overhead.
+
+It is frequent to exchange WS messages in the form and key/value pairs:
+```python
+data = {"status": "winner", "points": 300 }
+``` 
+This data structure is named `dictionary` in Python and `object` in Javascript.
 
 ---
 ### HyperText Markup Language (HTML)
