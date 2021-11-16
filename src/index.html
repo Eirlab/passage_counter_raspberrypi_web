@@ -1,7 +1,8 @@
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>Passage counter</title>
-        <link rel="shortcut icon" href="http://eirlab.org/tiki-download_file.php?fileId=218" type="image/x-icon">
+        <link rel="shortcut icon" href="https://www.eirlab.net/wp-content/uploads/2021/10/cropped-cropped-eirlab_logo.png" type="image/x-icon">
         <style>
             @import url('http://fonts.cdnfonts.com/css/roboto');
             body {
@@ -31,7 +32,7 @@
             }
         </style>
     <script>
-        var ws = new WebSocket("ws://localhost:3000");
+        var ws = new WebSocket("ws://raspberrypi.local:3000");
         ws.onmessage = function(evt) { 
           document.getElementById("counter").innerHTML = JSON.parse(evt.data).passages;
         };
