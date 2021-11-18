@@ -198,7 +198,7 @@ To open a remote terminal on the Raspberry Pi you need the following prerequisit
 * The ssh server activated on the Raspberry Pi
 * To connect from a computer on the same Wifi/network
 * To know its hostname such as `raspberrypi.local` (or its IP address)
-* To know an existing remot user (such as user `pi`)
+* To know an existing remote user (such as user `pi`)
 * To know the password of this user (`raspberry`)
 
 
@@ -295,7 +295,7 @@ Every time a message is received, the `onmessage` function is run, as well as th
 
 In that case javascript will change `N/A` to the counter coming from the message.
 
-THus, instead of `<!--  DO SOMETHING WHEN A WS MESSAGE IS RECEIVED -->` we can actually update the inner HTML by modifying the DOM of the current web page:
+Thus, instead of `<!--  DO SOMETHING WHEN A WS MESSAGE IS RECEIVED -->` we can actually update the inner HTML by modifying the DOM of the current web page:
 
 ```javascript
 document.getElementById("counter").innerHTML = JSON.parse(evt.data).
@@ -315,7 +315,7 @@ Your dashboard is ready!
 ```bash
 ssh pi@raspberrypi.local
 ```
-Type `yes` to accept connection and type the password `raspberry pi`.
+Type `yes` to accept connection and type the password `raspberry`.
 
 Now your prompt have changed and says `pi@rapsberrypi.local`. It means that you are connected to a terminal on host `raspberrypi.local` with user `pi`.
 
@@ -331,17 +331,17 @@ Read attentively the server code in the [basic usage from the documentation](htt
 
 This Python library uses Python in asynchronous programming: code is not executed from top to bottom but a specific function is executed each time an event happens: 
 
-For instance the event "*When a client connects*" calls the function with decorator `@server.on('message')` is executed.   
+For instance the event "*When a client connects*" calls the function with decorator `@server.on('connect')` is executed.   
 
 ---
 
 **II. part 3:** Copy/paste the basic usage of server in a new `server.py` file.
 
-Change the code of the `connect` event in order to send an integer (zero) to the dashboard. Use a key/value dictionary: `{'passages': 0}` (`passages` is the key and 0 is the value assocaited to the key)
+Change the code of the `connect` event in order to send an integer (zero) to the dashboard. Use a key/value dictionary: `{'passages': 42}` (`passages` is the key and 0 is the value assocaited to the key)
 
 Run it with `python server.py`.
 
-Refresh the web page and make sure the counter now displays `0` instead of `N/A`.
+Refresh the web page and make sure the counter now displays `42` instead of `N/A`.
 
 ---
 
@@ -356,7 +356,7 @@ Stop the stop by pressing Ctrl+C and start it again to test. Make sure the count
 
 ---
 ## Part III: Read the GPIO
-**III. GPIO Connexion part 1**: Create a new `gpio.py` file to test the GPIO button.
+**III. GPIO Connexion part 1**: Open again the remote terminal connected via `ssh`. Create a new `gpio.py` file to test the GPIO button.
 
 There are may tools inside the `gpiozero` library for Python in order to read/write data on the GPIO. Read the docs [here](https://gpiozero.readthedocs.io/).
 
@@ -387,7 +387,7 @@ Press the button several time and check that it is increased every time.
 * Add a reset button: now this is the web browser that sends a reset message to the server, that must reset the counter to zero. 
 
 ---
-# Annex: Proposal of CSS style for the HTML `<head>` block
+# Annex: Proposal of CSS style
 
 ```css
 <style>
@@ -412,3 +412,8 @@ Press the button several time and check that it is increased every time.
     }
 </style>
 ```
+
+---
+# Annex: Solutions
+
+The code is online: [https://github.com/eirlab/passage_counter_raspberrypi_web/tree/master/src](https://github.com/eirlab/passage_counter_raspberrypi_web)
